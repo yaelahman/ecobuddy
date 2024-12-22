@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Allow direct access to asset folders
+RewriteCond %{REQUEST_URI} ^/assets/ [OR]
+RewriteCond %{REQUEST_URI} ^/style/ [OR]
+RewriteCond %{REQUEST_URI} ^/css/ [OR]
+RewriteCond %{REQUEST_URI} ^/js/ [OR]
+RewriteCond %{REQUEST_URI} ^/images/ [OR]
+RewriteCond %{REQUEST_URI} ^/fonts/
+RewriteRule ^ - [L]
+
+# Redirect all other requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
