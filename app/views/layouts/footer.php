@@ -7,7 +7,16 @@
 <script src="<?= BASE_URL ?>/assets/js/bootstrap.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/popper.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/jquery.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/datatables.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/script.js"></script>
+
+<?php
+
+if (isset($script)) {
+    include_once $script;
+}
+
+?>
 </body>
 
 </html>

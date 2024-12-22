@@ -14,7 +14,7 @@ class HomeController extends Controller
     public function index()
     {
         $user = $this->userModel->getAll();
-        $this->render('user/index', ['user' => $user]);
+        $this->render('home/index', ['user' => $user]);
     }
 
     public function create()

@@ -1,6 +1,7 @@
 <?php
 require_once './app/config/database.php';
 require_once './app/controllers/HomeController.php';
+require_once './app/controllers/EcoFacilityController.php';
 
 // Simple router
 $routes = [];
@@ -21,12 +22,12 @@ function dispatch($routes)
     $requestedUri = str_replace($baseDir, '', $requestedUri); // Normalize URI
     $requestedMethod = $_SERVER['REQUEST_METHOD'];
 
-    echo "Requested URI: $requestedUri<br>";
-    echo "Requested Method: $requestedMethod<br>";
+    // echo "Requested URI: $requestedUri<br>";
+    // echo "Requested Method: $requestedMethod<br>";
 
     foreach ($routes as $route) {
         if ($route['method'] === $requestedMethod && preg_match('#^' . $route['uri'] . '$#', $requestedUri, $matches)) {
-            echo "Matched Route: " . $route['uri'] . "<br>";
+            // echo "Matched Route: " . $route['uri'] . "<br>";
             array_shift($matches); // Remove the full match
             return call_user_func_array($route['callback'], $matches);
         }
@@ -34,7 +35,8 @@ function dispatch($routes)
 
     // If no route matches, return 404
     http_response_code(404);
-    echo "Page Not Found";
+
+    require __DIR__ . "/app/views/errors/404.php";
 }
 
 // Define routes
@@ -48,6 +50,11 @@ route('POST', '/create', [$HomeController, 'create']);
 route('GET', '/edit/(\d+)', [$HomeController, 'edit']);
 route('POST', '/edit/(\d+)', [$HomeController, 'edit']);
 route('GET', '/delete/(\d+)', [$HomeController, 'delete']);
+
+
+$EcoFacilityController = new EcoFacilityController();
+route('GET', '/eco-facility', [$EcoFacilityController, 'index']);
+route('GET', '/eco-facility/datatable', [$EcoFacilityController, 'datatable']);
 
 // Dispatch the current request
 dispatch($routes);

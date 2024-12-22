@@ -8,8 +8,14 @@ class Controller
     {
         extract($data); // Extract data as variables for the view
         require __DIR__ . "/../views/layouts/header.php";
-        // require __DIR__ . "/../views/$viewPath.php";
+        require __DIR__ . "/../views/$viewPath.php";
         require __DIR__ . "/../views/layouts/footer.php";
+    }
+
+    protected function component($viewPath, $script = true)
+    {
+        $type = $script ? 'script' : 'style';
+        return __DIR__ . "/../views/$viewPath/component/$type.php";
     }
 
     // Redirect to a specific URI
