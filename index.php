@@ -1,4 +1,5 @@
 <?php
+
 require_once './app/config/database.php';
 require_once './app/controllers/HomeController.php';
 require_once './app/controllers/EcoFacilityController.php';
@@ -16,18 +17,25 @@ function route($method, $uri, $callback)
 // Function to handle requests
 function dispatch($routes)
 {
-    // Debug requested URI and method
     $baseDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
     $requestedUri = strtok($_SERVER['REQUEST_URI'], '?');
-    $requestedUri = str_replace($baseDir, '', $requestedUri); // Normalize URI
     $requestedMethod = $_SERVER['REQUEST_METHOD'];
 
+    $requestedUri = $requestedUri ? $requestedUri : '/';
+    // Debugging
+
+    // echo "Base Dir: $baseDir<br>";
     // echo "Requested URI: $requestedUri<br>";
     // echo "Requested Method: $requestedMethod<br>";
 
     foreach ($routes as $route) {
+        // Debugging
+        // echo "Checking Route: {$route['uri']}<br>";
+
         if ($route['method'] === $requestedMethod && preg_match('#^' . $route['uri'] . '$#', $requestedUri, $matches)) {
-            // echo "Matched Route: " . $route['uri'] . "<br>";
+            // Debugging
+            // echo "Matched Route: {$route['uri']}<br>";
+
             array_shift($matches); // Remove the full match
             return call_user_func_array($route['callback'], $matches);
         }
@@ -35,7 +43,6 @@ function dispatch($routes)
 
     // If no route matches, return 404
     http_response_code(404);
-
     require __DIR__ . "/app/views/errors/404.php";
 }
 
