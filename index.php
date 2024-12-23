@@ -51,7 +51,7 @@ function dispatch($routes)
 
     // Return a 404 response if no route matches
     http_response_code(404);
-    // echo "404 Not Found";
+    require __DIR__ . "/app/views/errors/404.php";
 }
 
 // Define routes
