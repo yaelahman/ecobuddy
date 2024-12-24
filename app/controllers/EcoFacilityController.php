@@ -50,7 +50,19 @@ class EcoFacilityController extends Controller
             "data" => []
         ];
 
+
         foreach ($ecoFacility as $facility) {
+            $action = '';
+            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager') {
+                $action .= '<a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm">Edit</a>
+                            <button class="btn btn-danger btn-sm delete-button" data-id="' . $facility['id'] . '">Delete</button>';
+            }
+
+            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'User') {
+                $action .= '<button class="btn btn-primary btn-sm visit-button" data-id="' . $facility['id'] . '">Mark as Visited</button>';
+            }
+
+
             $response['data'][] = [
                 $facility['title'],
                 $facility['description'],
@@ -58,11 +70,10 @@ class EcoFacilityController extends Controller
                 $facility['town'],
                 $facility['county'],
                 $facility['postcode'],
-                isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager' ?
+                $action ?
                     '
-                    <div class="btn-group">
-                        <a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm">Edit</a>
-                        <button class="btn btn-danger btn-sm delete-button" data-id="' . $facility['id'] . '">Delete</button>
+                    <div class="btn-group text-nowrap">
+                        ' . $action . '
                     </div>
                 ' : '-'
             ];
@@ -143,6 +154,31 @@ class EcoFacilityController extends Controller
             'ecoFacility' => $facility,
             'category' => $this->ecoCategoryModel->all()
         ]);
+    }
+
+    public function markAsVisited($id)
+    {
+        // Fetch the existing eco facility data
+        $facility = $this->ecoFacilityModel->getById($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo "Eco facility not found.";
+            return;
+        }
+
+        // Mark the facility as visited
+        $data = [
+            'visited' => 1
+        ];
+
+        // Update the eco facility record
+        if ($this->ecoFacilityModel->update($id, $data)) {
+            echo "Eco facility marked as visited successfully.";
+        } else {
+            // Handle error (e.g., show an error message)
+            echo "Error marking eco facility as visited.";
+        }
     }
 
     public function delete($id)
