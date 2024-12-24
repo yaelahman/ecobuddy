@@ -56,8 +56,9 @@ function dispatch($routes)
 
                 // Ensure callback is a valid callable
                 if (is_callable($route['callback'])) {
-                    // Execute the route's callback
-                    return call_user_func_array($route['callback'], $matches);
+                    // Execute the route's callback with sanitized matches
+                    $sanitizedMatches = array_map('htmlspecialchars', $matches);
+                    return call_user_func_array($route['callback'], $sanitizedMatches);
                 } else {
                     throw new Exception('Invalid callback for route ' . $route['uri']);
                 }

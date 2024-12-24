@@ -24,7 +24,7 @@ class Model
     {
         $query = "SELECT * FROM {$this->table} WHERE {$this->primaryKey} = :id LIMIT 1";
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -60,7 +60,7 @@ class Model
         $setClause = implode(', ', array_map(fn($key) => "{$key} = :{$key}", array_keys($data)));
         $query = "UPDATE {$this->table} SET {$setClause} WHERE {$this->primaryKey} = :id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
         foreach ($data as $key => $value) {
             $stmt->bindValue(":{$key}", $value);
@@ -74,7 +74,7 @@ class Model
     {
         $query = "DELETE FROM {$this->table} WHERE {$this->primaryKey} = :id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 }
