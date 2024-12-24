@@ -10,9 +10,17 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Login</h5>
-                    <p class="card-text">Login as Manager/User.</p>
-                    <a href="<?= BASE_URL ?>/login" class="btn btn-primary">Learn More</a>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <!-- When Logged In -->
+                        <h5 class="card-title">Welcome, <b><?= htmlspecialchars($_SESSION['user_name']) ?></b>!</h5>
+                        <p class="card-text">You are logged in as <b><?= htmlspecialchars($_SESSION['user_role'] ?? 'User') ?></b>.</p>
+                        <a href="<?= BASE_URL ?>/logout" class="btn btn-danger">Logout</a>
+                    <?php else: ?>
+                        <!-- When Not Logged In -->
+                        <h5 class="card-title">Login</h5>
+                        <p class="card-text">Login as Manager/User.</p>
+                        <a href="<?= BASE_URL ?>/login" class="btn btn-primary">Learn More</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

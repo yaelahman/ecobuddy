@@ -1,14 +1,10 @@
 <?php
-class EcoFacility
-{
-    private $db;
-    private $table;
 
-    public function __construct()
-    {
-        $this->db = Database::getInstance(); // Use the singleton database instance
-        $this->table = "ecoFacilities"; // Name of the table
-    }
+require_once __DIR__ . '/Model.php';
+
+class EcoFacility extends Model
+{
+    protected $table = 'ecoFacilities'; // Table name
 
     // Fetch all users
     public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'ASC')

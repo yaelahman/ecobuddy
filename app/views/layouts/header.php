@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title>Ecobuddy</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style/bootstrap.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style/datatables.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style/style.css">
@@ -30,7 +30,22 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<?= BASE_URL ?>">Home</a>
                     </li>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <!-- Menu items when logged in -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/profile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="<?= BASE_URL ?>/logout">Logout</a>
+                        </li>
+                    <?php else: ?>
+                        <!-- Menu items when not logged in -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/login">Login</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
+
         </div>
     </nav>

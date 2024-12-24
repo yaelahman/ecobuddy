@@ -15,7 +15,11 @@ class Controller
     protected function component($viewPath, $script = true)
     {
         $type = $script ? 'script' : 'style';
-        return __DIR__ . "/../views/$viewPath/component/$type.php";
+        if(file_exists(__DIR__ . "/../views/$viewPath/component/$type.php")) {
+            return __DIR__ . "/../views/$viewPath/component/$type.php";
+        } else {
+            return "";
+        }
     }
 
     // Redirect to a specific URI

@@ -1,14 +1,11 @@
 <?php
-class User
-{
-    private $db;
-    private $table;
 
-    public function __construct()
-    {
-        $this->db = Database::getInstance(); // Use the singleton database instance
-        $this->table = "ecoUser"; // Name of the table
-    }
+
+require_once __DIR__ . '/Model.php';
+
+class User extends Model
+{
+    protected $table = 'ecoUser'; // Table name
 
     // Fetch all users
     public function getAll()
@@ -29,6 +26,21 @@ class User
     {
         $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE id = :id");
         $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    // Fetch a user by USERNAME
+    public function getUserByUsername($username)
+    {
+        $query = "
+            SELECT u.*, e.name AS role 
+            FROM $this->table AS u
+            LEFT JOIN ecoUsertypes AS e
+            ON u.userType = e.id
+            WHERE u.username = :username
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(['username' => $username]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
