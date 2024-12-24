@@ -7,7 +7,7 @@ class EcoFacility extends Model
     protected $table = 'ecoFacilities'; // Table name
 
     // Fetch all users
-    public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'ASC')
+    public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'DESC')
     {
         // Base query
         $query = "SELECT * FROM $this->table";
@@ -68,14 +68,6 @@ class EcoFacility extends Model
         $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // Update user information
-    public function update($id, $data)
-    {
-        $stmt = $this->db->prepare("UPDATE $this->table SET username = :username, password = :password, userType = :userType WHERE id = :id");
-        $data['id'] = $id;
-        return $stmt->execute($data);
     }
 
     // Delete a user by ID

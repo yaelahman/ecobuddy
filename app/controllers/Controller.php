@@ -15,7 +15,7 @@ class Controller
     protected function component($viewPath, $script = true)
     {
         $type = $script ? 'script' : 'style';
-        if(file_exists(__DIR__ . "/../views/$viewPath/component/$type.php")) {
+        if (file_exists(__DIR__ . "/../views/$viewPath/component/$type.php")) {
             return __DIR__ . "/../views/$viewPath/component/$type.php";
         } else {
             return "";
@@ -25,7 +25,8 @@ class Controller
     // Redirect to a specific URI
     protected function redirect($uri)
     {
-        header("Location: $uri");
+        $url = BASE_URL . $uri;
+        header("Location: $url");
         exit;
     }
 

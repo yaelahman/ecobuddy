@@ -31,7 +31,7 @@ class EcoFacilityController extends Controller
         $length = isset($_GET['length']) ? (int)$_GET['length'] : 10;
         $search = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
         $orderColumnIndex = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 0;
-        $orderDirection = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'ASC';
+        $orderDirection = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'DESC';
 
         // Define orderable columns (adjust based on your database schema)
         $columns = ['id', 'title', 'description', 'category', 'town', 'county', 'postcode'];
@@ -59,10 +59,10 @@ class EcoFacilityController extends Controller
                 $facility['county'],
                 $facility['postcode'],
                 isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager' ?
-                '
+                    '
                     <div class="btn-group">
-                        <a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm delete-button">Edit</a>
-                        <button class="btn btn-danger btn-sm delete-button" data-id="'. $facility['id'] .'">Delete</button>
+                        <a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm">Edit</a>
+                        <button class="btn btn-danger btn-sm delete-button" data-id="' . $facility['id'] . '">Delete</button>
                     </div>
                 ' : '-'
             ];
