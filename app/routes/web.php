@@ -13,11 +13,15 @@ $AuthController = new AuthController();
 $EcoFacilityController = new EcoFacilityController();
 
 route('GET', '/', [$HomeController, 'index']);
+
 route('GET', '/login', [$AuthController, 'login']);
 route('POST', '/login', [$AuthController, 'loginAction']);
 route('GET', '/logout', [$AuthController, 'logout']);
+
 route('GET', '/eco-facility', [$EcoFacilityController, 'index']);
 route('GET', '/eco-facility/datatable', [$EcoFacilityController, 'datatable']);
+route('GET', '/eco-facility/create', [$EcoFacilityController, 'create']);
+route('POST', '/eco-facility/create', [$EcoFacilityController, 'create']);
 
 // Return the routes array for dispatch
 return $routes;

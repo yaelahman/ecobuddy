@@ -27,16 +27,16 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="<?= BASE_URL ?>">Home</a>
-                    </li>
+                    </li> -->
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <!-- Menu items when logged in -->
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= BASE_URL ?>/profile">Profile</a>
+                            <a class="nav-link" href="<?= BASE_URL ?>"><?= $_SESSION['user_name'] ?> - <?= $_SESSION['user_role'] ?></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="<?= BASE_URL ?>/logout">Logout</a>
+                            <a class="nav-link btn btn-danger btn-sm ms-2" href="<?= BASE_URL ?>/logout">Logout</a>
                         </li>
                     <?php else: ?>
                         <!-- Menu items when not logged in -->

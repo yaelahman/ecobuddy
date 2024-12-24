@@ -62,13 +62,6 @@ class EcoFacility extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 
-    // Create a new user
-    public function create($data)
-    {
-        $stmt = $this->db->prepare("INSERT INTO $this->table (username, password, userType) VALUES (:username, :password, :userType)");
-        return $stmt->execute($data);
-    }
-
     // Fetch a user by ID
     public function getById($id)
     {
