@@ -20,6 +20,7 @@ route('GET', '/register', [$AuthController, 'register']);
 route('POST', '/register', [$AuthController, 'register']);
 route('GET', '/logout', [$AuthController, 'logout']);
 
+route('GET', '/eco-facility/seeder', [$EcoFacilityController, 'seed']);
 route('GET', '/eco-facility', [$EcoFacilityController, 'index']);
 route('GET', '/eco-facility/datatable', [$EcoFacilityController, 'datatable']);
 route('GET', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manager');

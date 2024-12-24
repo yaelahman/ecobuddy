@@ -201,4 +201,29 @@ class EcoFacilityController extends Controller
             echo json_encode(["error" => "Error deleting eco facility."]);
         }
     }
+
+    public function seed()
+    {
+        // Seed the eco facilities table with 1000 rows
+        for ($i = 1; $i <= 1000; $i++) {
+            $data = [
+                'id' => $i,
+                'title' => 'Eco Facility ' . $i,
+                'category' => rand(1, 10),
+                'description' => 'Description for Eco Facility ' . $i,
+                'houseNumber' => 'House Number ' . $i,
+                'streetName' => 'Street Name ' . $i,
+                'county' => 'County ' . $i,
+                'town' => 'Town ' . $i,
+                'postcode' => 'Postcode ' . $i,
+                'lng' => rand(-90, 90) + (rand(0, 9999) / 10000),
+                'lat' => rand(-180, 180) + (rand(0, 9999) / 10000),
+                'contributor' => rand(1, 1)
+            ];
+
+            $this->ecoFacilityModel->create($data);
+        }
+
+        echo "Eco facilities seeded successfully.";
+    }
 }
