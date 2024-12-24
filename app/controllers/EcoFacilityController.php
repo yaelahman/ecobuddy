@@ -62,7 +62,7 @@ class EcoFacilityController extends Controller
                 '
                     <div class="btn-group">
                         <a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm delete-button">Edit</a>
-                        <button class="btn btn-danger btn-sm delete-button" disabled>Delete</button>
+                        <button class="btn btn-danger btn-sm delete-button" data-id="'. $facility['id'] .'">Delete</button>
                     </div>
                 ' : '-'
             ];
@@ -143,5 +143,26 @@ class EcoFacilityController extends Controller
             'ecoFacility' => $facility,
             'category' => $this->ecoCategoryModel->all()
         ]);
+    }
+
+    public function delete($id)
+    {
+        // Fetch the existing eco facility data
+        $facility = $this->ecoFacilityModel->getById($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo json_encode(["error" => "Eco facility not found."]);
+            return;
+        }
+
+        // Attempt to delete the eco facility record
+        if ($this->ecoFacilityModel->delete($id)) {
+            echo json_encode(["success" => "Eco facility deleted successfully."]);
+            $this->redirect('/eco-facility');
+        } else {
+            // Handle error (e.g., show an error message)
+            echo json_encode(["error" => "Error deleting eco facility."]);
+        }
     }
 }

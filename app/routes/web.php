@@ -23,6 +23,7 @@ route('GET', '/eco-facility/datatable', [$EcoFacilityController, 'datatable']);
 route('GET', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manager');
 route('POST', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manager');
 route('GET', '/eco-facility/edit/(\d+)', [$EcoFacilityController, 'edit'], 'manager');
+route('DELETE', '/eco-facility/delete/(\d+)', [$EcoFacilityController, 'delete'], 'manager');
 
 // Return the routes array for dispatch
 return $routes;
