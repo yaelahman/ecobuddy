@@ -20,8 +20,9 @@ route('GET', '/logout', [$AuthController, 'logout']);
 
 route('GET', '/eco-facility', [$EcoFacilityController, 'index']);
 route('GET', '/eco-facility/datatable', [$EcoFacilityController, 'datatable']);
-route('GET', '/eco-facility/create', [$EcoFacilityController, 'create']);
-route('POST', '/eco-facility/create', [$EcoFacilityController, 'create']);
+route('GET', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manager');
+route('POST', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manager');
+route('GET', '/eco-facility/edit/(\d+)', [$EcoFacilityController, 'edit'], 'manager');
 
 // Return the routes array for dispatch
 return $routes;

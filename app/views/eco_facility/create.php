@@ -1,5 +1,8 @@
 <div class="container py-3">
     <h2>Create New Eco Facility</h2>
+    <div class="mb-3">
+        <a href="<?= BASE_URL ?>/eco-facility" class="btn btn-secondary">Back to Eco Facilities List</a>
+    </div>
     <form action="<?= BASE_URL ?>/eco-facility/create" method="POST">
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>

@@ -57,7 +57,14 @@ class EcoFacilityController extends Controller
                 $facility['category'],
                 $facility['town'],
                 $facility['county'],
-                $facility['postcode']
+                $facility['postcode'],
+                isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager' ?
+                '
+                    <div class="btn-group">
+                        <a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm delete-button">Edit</a>
+                        <button class="btn btn-danger btn-sm delete-button" disabled>Delete</button>
+                    </div>
+                ' : '-'
             ];
         }
 
@@ -66,36 +73,75 @@ class EcoFacilityController extends Controller
         echo json_encode($response);
     }
 
-public function create()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = [
-            'title' => $_POST['title'] ?? 0,
-            'category' => 1,
-            'description' => $_POST['description'] ?? 0,
-            'houseNumber' => $_POST['houseNumber'] ?? 0,
-            'streetName' => $_POST['streetName'] ?? 0,
-            'town' => $_POST['town'] ?? 0,
-            'county' => $_POST['county'] ?? 0,
-            'postcode' => $_POST['postcode'] ?? 0,
-            'lng' => $_POST['lng'] ?? 0,
-            'lat' => $_POST['lat'] ?? 0,
-            'contributor' => $_SESSION['user_id']
-        ];
+    public function create()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'title' => $_POST['title'] ?? 0,
+                'category' => 1,
+                'description' => $_POST['description'] ?? 0,
+                'houseNumber' => $_POST['houseNumber'] ?? 0,
+                'streetName' => $_POST['streetName'] ?? 0,
+                'town' => $_POST['town'] ?? 0,
+                'county' => $_POST['county'] ?? 0,
+                'postcode' => $_POST['postcode'] ?? 0,
+                'lng' => $_POST['lng'] ?? 0,
+                'lat' => $_POST['lat'] ?? 0,
+                'contributor' => $_SESSION['user_id']
+            ];
 
-        // Validate data here (add your validation logic)
+            // Validate data here (add your validation logic)
 
-        // Insert the new eco facility record
-        if ($this->ecoFacilityModel->create($data)) {
-            $this->redirect('/eco-facility');
-        } else {
-            // Handle error (e.g., show an error message)
-            echo "Error creating eco facility.";
+            // Insert the new eco facility record
+            if ($this->ecoFacilityModel->create($data)) {
+                $this->redirect('/eco-facility');
+            } else {
+                // Handle error (e.g., show an error message)
+                echo "Error creating eco facility.";
+            }
         }
+
+        $this->render('eco_facility/create', [
+            'category' => $this->ecoCategoryModel->all()
+        ]);
     }
 
-    $this->render('eco_facility/create', [
-        'category' => $this->ecoCategoryModel->all()
-    ]);
-}
+    public function edit($id)
+    {
+        // Fetch the existing eco facility data
+        $facility = $this->ecoFacilityModel->getById($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo "Eco facility not found.";
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'title' => $_POST['title'] ?? $facility['title'],
+                'category' => $_POST['category'] ?? $facility['category'],
+                'description' => $_POST['description'] ?? $facility['description'],
+                'town' => $_POST['town'] ?? $facility['town'],
+                'county' => $_POST['county'] ?? $facility['county'],
+                'postcode' => $_POST['postcode'] ?? $facility['postcode'],
+                'contributor' => $_SESSION['user_id']
+            ];
+
+            // Validate data here (add your validation logic)
+
+            // Update the eco facility record
+            if ($this->ecoFacilityModel->update($id, $data)) {
+                $this->redirect('/eco-facility');
+            } else {
+                // Handle error (e.g., show an error message)
+                echo "Error updating eco facility.";
+            }
+        }
+
+        $this->render('eco_facility/edit', [
+            'ecoFacility' => $facility,
+            'category' => $this->ecoCategoryModel->all()
+        ]);
+    }
 }

@@ -13,17 +13,8 @@
                 <th>Town</th>
                 <th>County</th>
                 <th>Postcode</th>
+                <th>Action</th>
             </tr>
         </thead>
-        <tfoot>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Town</th>
-                <th>County</th>
-                <th>Postcode</th>
-            </tr>
-        </tfoot>
     </table>
 </div>
