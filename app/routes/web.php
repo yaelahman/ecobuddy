@@ -28,6 +28,7 @@ route('POST', '/eco-facility/create', [$EcoFacilityController, 'create'], 'manag
 route('GET', '/eco-facility/edit/(\d+)', [$EcoFacilityController, 'edit'], 'manager');
 route('POST', '/eco-facility/edit/(\d+)', [$EcoFacilityController, 'edit'], 'manager');
 route('DELETE', '/eco-facility/delete/(\d+)', [$EcoFacilityController, 'delete'], 'manager');
+route('POST', '/eco-facility/visit/(\d+)', [$EcoFacilityController, 'visit'], 'auth');
 
 // Return the routes array for dispatch
 return $routes;

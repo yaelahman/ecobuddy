@@ -2,18 +2,21 @@
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/EcoFacility.php';
+require_once __DIR__ . '/../models/EcoFacilityStatus.php';
 require_once __DIR__ . '/../models/EcoCategory.php';
 
 class EcoFacilityController extends Controller
 {
     private $userModel;
     private $ecoFacilityModel;
+    private $ecoFacilityStatusModel;
     private $ecoCategoryModel;
 
     public function __construct()
     {
         $this->userModel = new User();
         $this->ecoFacilityModel = new EcoFacility();
+        $this->ecoFacilityStatusModel = new EcoFacilityStatus();
         $this->ecoCategoryModel = new EcoCategory();
     }
 
@@ -59,7 +62,11 @@ class EcoFacilityController extends Controller
             }
 
             if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'User') {
-                $action .= '<button class="btn btn-primary btn-sm visit-button" data-id="' . $facility['id'] . '">Mark as Visited</button>';
+                if ($facility['isVisited']) {
+                    $action .= '<button class="btn btn-primary btn-sm" data-id="' . $facility['id'] . '" disabled>Visited</button>';
+                } else {
+                    $action .= '<button class="btn btn-primary btn-sm visit-button" data-id="' . $facility['id'] . '">Mark as Visited</button>';
+                }
             }
 
 
@@ -75,7 +82,7 @@ class EcoFacilityController extends Controller
                     <div class="btn-group text-nowrap">
                         ' . $action . '
                     </div>
-                ' : '-'
+                ' : '-',
             ];
         }
 
@@ -120,7 +127,7 @@ class EcoFacilityController extends Controller
     public function edit($id)
     {
         // Fetch the existing eco facility data
-        $facility = $this->ecoFacilityModel->getById($id);
+        $facility = $this->ecoFacilityModel->find($id);
 
         if (!$facility) {
             // Handle error if facility not found
@@ -156,35 +163,45 @@ class EcoFacilityController extends Controller
         ]);
     }
 
-    public function markAsVisited($id)
+    public function visit($id)
     {
         // Fetch the existing eco facility data
-        $facility = $this->ecoFacilityModel->getById($id);
+        $facility = $this->ecoFacilityModel->find($id);
+        $status = $this->ecoFacilityStatusModel->where('facilityId', '=', $id);
 
         if (!$facility) {
             // Handle error if facility not found
-            echo "Eco facility not found.";
+            echo json_encode(["error" => "Eco facility not found."]);
             return;
         }
 
         // Mark the facility as visited
         $data = [
-            'visited' => 1
+            'facilityId' => $id,
+            'isVisited' => 1,
+            'statusComment' => '-',
+            'contributor' => $_SESSION['user_id']
         ];
 
+        if ($status) {
+            $changeStatus = $this->ecoFacilityStatusModel->create($data);
+        } else {
+            $changeStatus = $this->ecoFacilityStatusModel->update($id, $data);
+        }
+
         // Update the eco facility record
-        if ($this->ecoFacilityModel->update($id, $data)) {
-            echo "Eco facility marked as visited successfully.";
+        if ($changeStatus) {
+            echo json_encode(["success" => "Eco facility marked as visited successfully."]);
         } else {
             // Handle error (e.g., show an error message)
-            echo "Error marking eco facility as visited.";
+            echo json_encode(["error" => "Error marking eco facility as visited."]);
         }
     }
 
     public function delete($id)
     {
         // Fetch the existing eco facility data
-        $facility = $this->ecoFacilityModel->getById($id);
+        $facility = $this->ecoFacilityModel->find($id);
 
         if (!$facility) {
             // Handle error if facility not found

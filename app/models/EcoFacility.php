@@ -9,12 +9,12 @@ class EcoFacility extends Model
     // Fetch all users
     public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'DESC')
     {
-        // Base query
-        $query = "SELECT * FROM $this->table";
+        // Base query with join to ecoFacilityStatus
+        $query = "SELECT $this->table.*, ecoFacilityStatus.isVisited, ecoFacilityStatus.statusComment FROM $this->table LEFT JOIN ecoFacilityStatus ON $this->table.id = ecoFacilityStatus.facilityId AND ecoFacilityStatus.contributor = :userId";
 
         // Add search filter if provided
         if (!empty($search)) {
-            $query .= " WHERE title LIKE :search OR description LIKE :search OR county LIKE :search OR town LIKE :search";
+            $query .= " WHERE $this->table.title LIKE :search OR $this->table.description LIKE :search OR $this->table.county LIKE :search OR $this->table.town LIKE :search";
         }
 
         // Add ordering
@@ -27,6 +27,9 @@ class EcoFacility extends Model
         $stmt = $this->db->prepare($query);
 
         // Bind parameters
+        if (isset($_SESSION['user_id']))
+            $stmt->bindValue(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
+
         if (!empty($search)) {
             $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
         }
@@ -60,20 +63,5 @@ class EcoFacility extends Model
 
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
-    }
-
-    // Fetch a user by ID
-    public function getById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE id = :id");
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // Delete a user by ID
-    public function delete($id)
-    {
-        $stmt = $this->db->prepare("DELETE FROM $this->table WHERE id = :id");
-        return $stmt->execute(['id' => $id]);
     }
 }
