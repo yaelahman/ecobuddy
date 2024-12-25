@@ -2,11 +2,29 @@
 
 require_once __DIR__ . '/Model.php';
 
+/**
+ * EcoFacility model class.
+ * 
+ * This class extends the Model class and is used to interact with the 'ecoFacilities' table in the database.
+ * 
+ * @property string $table The name of the table in the database.
+ */
 class EcoFacility extends Model
 {
     protected $table = 'ecoFacilities'; // Table name
 
-    // Fetch all users
+    /**
+     * Fetch all ecoFacilities with pagination, search and order.
+     * 
+     * Executes a SELECT query to fetch all ecoFacilities from the table with pagination, search and order.
+     * 
+     * @param int $start The start index for pagination.
+     * @param int $length The number of records to fetch.
+     * @param string $search The search string to filter records.
+     * @param string $orderColumn The column to order by.
+     * @param string $orderDirection The direction of the order.
+     * @return array An array of ecoFacilities fetched from the table.
+     */
     public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'DESC')
     {
         // Base query with join to ecoFacilityStatus
@@ -40,12 +58,27 @@ class EcoFacility extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Get the total number of ecoFacilities.
+     * 
+     * Executes a SELECT query to fetch the total number of ecoFacilities from the table.
+     * 
+     * @return int The total number of ecoFacilities.
+     */
     public function getTotalRecords()
     {
         $stmt = $this->db->query("SELECT COUNT(*) as count FROM $this->table");
         return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
 
+    /**
+     * Get the total number of filtered ecoFacilities.
+     * 
+     * Executes a SELECT query to fetch the total number of ecoFacilities from the table based on a search filter.
+     * 
+     * @param string $search The search string to filter records.
+     * @return int The total number of filtered ecoFacilities.
+     */
     public function getFilteredRecords($search)
     {
         $query = "SELECT COUNT(*) as count FROM $this->table";

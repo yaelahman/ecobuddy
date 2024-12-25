@@ -3,17 +3,26 @@ require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/EcoFacility.php';
 
+/**
+ * AuthController handles user authentication and registration.
+ */
 class AuthController extends Controller
 {
     private $userModel;
     private $ecoFacilityModel;
 
+    /**
+     * Initializes the controller with User and EcoFacility models.
+     */
     public function __construct()
     {
         $this->userModel = new User();
         $this->ecoFacilityModel = new EcoFacility();
     }
 
+    /**
+     * Renders the login page.
+     */
     public function login()
     {
         $this->render('auth/login', [
@@ -22,6 +31,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Handles the login form submission.
+     */
     public function loginAction()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -92,6 +104,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Handles user registration.
+     */
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -175,6 +190,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Handles user logout.
+     */
     public function logout()
     {
         session_start();

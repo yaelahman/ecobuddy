@@ -5,6 +5,10 @@ require_once __DIR__ . '/../models/EcoFacility.php';
 require_once __DIR__ . '/../models/EcoFacilityStatus.php';
 require_once __DIR__ . '/../models/EcoCategory.php';
 
+/**
+ * EcoFacilityController handles all operations related to eco facilities.
+ * It extends the base Controller class and provides methods for managing eco facilities.
+ */
 class EcoFacilityController extends Controller
 {
     private $userModel;
@@ -12,6 +16,9 @@ class EcoFacilityController extends Controller
     private $ecoFacilityStatusModel;
     private $ecoCategoryModel;
 
+    /**
+     * Initializes the controller by setting up models.
+     */
     public function __construct()
     {
         $this->userModel = new User();
@@ -20,6 +27,9 @@ class EcoFacilityController extends Controller
         $this->ecoCategoryModel = new EcoCategory();
     }
 
+    /**
+     * Renders the index view for eco facilities.
+     */
     public function index()
     {
         $this->render('eco_facility/index', [
@@ -27,6 +37,9 @@ class EcoFacilityController extends Controller
         ]);
     }
 
+    /**
+     * Handles DataTables requests for eco facilities.
+     */
     public function datatable()
     {
         // Capture DataTables parameters
@@ -91,6 +104,9 @@ class EcoFacilityController extends Controller
         echo json_encode($response);
     }
 
+    /**
+     * Handles the creation of a new eco facility.
+     */
     public function create()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -124,6 +140,11 @@ class EcoFacilityController extends Controller
         ]);
     }
 
+    /**
+     * Handles the editing of an existing eco facility.
+     * 
+     * @param int $id The ID of the eco facility to edit.
+     */
     public function edit($id)
     {
         // Fetch the existing eco facility data
@@ -163,6 +184,11 @@ class EcoFacilityController extends Controller
         ]);
     }
 
+    /**
+     * Marks an eco facility as visited.
+     * 
+     * @param int $id The ID of the eco facility to mark as visited.
+     */
     public function visit($id)
     {
         // Fetch the existing eco facility data
@@ -198,6 +224,11 @@ class EcoFacilityController extends Controller
         }
     }
 
+    /**
+     * Deletes an eco facility.
+     * 
+     * @param int $id The ID of the eco facility to delete.
+     */
     public function delete($id)
     {
         // Fetch the existing eco facility data
@@ -219,6 +250,9 @@ class EcoFacilityController extends Controller
         }
     }
 
+    /**
+     * Seeds the eco facilities table with 1000 rows of sample data.
+     */
     public function seed()
     {
         // Seed the eco facilities table with 1000 rows
