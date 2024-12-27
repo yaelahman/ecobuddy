@@ -1,46 +1,39 @@
-<!-- Jumbotron -->
-<div class="jumbotron text-center py-5 bg-primary text-white">
-    <h1 class="display-4">Welcome to Eco Buddy!</h1>
-    <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis quisquam nostrum explicabo distinctio repudiandae deleniti molestias eligendi tempora possimus ratione!</p>
-</div>
+<main class="main">
 
-<!-- Features Section -->
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <!-- When Logged In -->
-                        <h5 class="card-title">Welcome, <b><?= htmlspecialchars($_SESSION['user_name']) ?></b>!</h5>
-                        <p class="card-text">You are logged in as <b><?= htmlspecialchars($_SESSION['user_role'] ?? 'User') ?></b>.</p>
-                        <a href="<?= BASE_URL ?>/logout" class="btn btn-danger">Logout</a>
-                    <?php else: ?>
-                        <!-- When Not Logged In -->
-                        <h5 class="card-title">Login</h5>
-                        <p class="card-text">Login as Manager/User.</p>
-                        <a href="<?= BASE_URL ?>/login" class="btn btn-primary">Learn More</a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Eco Facility</h5>
-                    <p class="card-text">Please Check Our Facility Here.</p>
-                    <a href="<?= BASE_URL ?>/eco-facility" class="btn btn-primary">Learn More</a>
-                </div>
-            </div>
-        </div>
-        <!-- <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Bootstrap Styling</h5>
-                        <p class="card-text">Responsive and modern UI built with Bootstrap.</p>
-                        <a href="<?= BASE_URL ?>" class="btn btn-primary">Learn More</a>
+    <!-- Hero Section -->
+    <section id="hero" class="hero section">
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
+
+                        <h1 class="mb-4">
+                            Welcome to <br>
+                            EcoBuddy <br>
+                            <span class="accent-text">University Facility Access Web</span>
+                        </h1>
+
+                        <p class="mb-4 mb-md-5">
+                            Explore and access various facilities of the university with ease.
+                        </p>
+
+                        <div class="hero-buttons">
+                            <a href="<?= BASE_URL ?>/register" class="btn btn-primary me-0 me-sm-2 mx-1">Get Started</a>
+                        </div>
                     </div>
                 </div>
-            </div> -->
-    </div>
-</div>
+
+                <div class="col-lg-6">
+                    <div class="hero-image" data-aos="zoom-out" data-aos-delay="300">
+                        <img src="<?= BASE_URL ?>/assets/img/illustration-1.webp" alt="Hero Image" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>

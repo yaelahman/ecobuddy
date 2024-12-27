@@ -1,15 +1,24 @@
-<!-- Footer -->
-<footer class="bg-light text-center py-3 mt-5">
-    <p>&copy; 2024 Eco Buddy. All rights reserved.</p>
+<footer id="footer" class="footer">
+    <div class="container copyright text-center mt-4">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">EcoBuddy</strong> <span>All Rights Reserved</span></p>
+    </div>
+
 </footer>
 
-<script src="<?= BASE_URL ?>/assets/js/bootstrap.bundle.min.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/bootstrap.min.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/popper.min.js"></script>
+<!-- Scroll Top -->
+<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+<!-- Vendor JS Files -->
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/php-email-form/validate.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/aos/aos.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/glightbox/js/glightbox.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/jquery.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/datatables.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/script.js"></script>
 
+<!-- Main JS File -->
+<script src="<?= BASE_URL ?>/assets/js/main.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/script.js"></script>
 <?php
 
 if (isset($script)) {
@@ -17,6 +26,7 @@ if (isset($script)) {
 }
 
 ?>
+
 </body>
 
 </html>
