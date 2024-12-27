@@ -5,6 +5,8 @@
         serverSide: true
     });
 
+    $('.dt-input').addClass('form-control rounded border-secondary');
+
     document.addEventListener('click', function(event) {
         if (event.target.classList.contains('delete-button')) {
             const facilityId = event.target.getAttribute('data-id');

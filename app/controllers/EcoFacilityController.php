@@ -33,7 +33,8 @@ class EcoFacilityController extends Controller
     public function index()
     {
         $this->render('eco_facility/index', [
-            'script' => $this->component('eco_facility')
+            'script' => $this->component('eco_facility'),
+            'style' => $this->component('eco_facility', false),
         ]);
     }
 
@@ -255,8 +256,10 @@ class EcoFacilityController extends Controller
      */
     public function seed()
     {
+        // Delete all existing eco facilities
+        $this->ecoFacilityModel->deleteAll();
         // Seed the eco facilities table with 1000 rows
-        for ($i = 1; $i <= 1000; $i++) {
+        for ($i = 1; $i <= 10000; $i++) {
             $data = [
                 'id' => $i,
                 'title' => 'Eco Facility ' . $i,
