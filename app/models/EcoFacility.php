@@ -97,4 +97,13 @@ class EcoFacility extends Model
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
+
+    /**
+     * Deletes all eco facilities.
+     */
+    public function deleteAll()
+    {
+        $stmt = $this->db->prepare("DELETE FROM $this->table");
+        return $stmt->execute();
+    }
 }
