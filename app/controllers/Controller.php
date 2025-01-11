@@ -18,9 +18,9 @@ class Controller
     protected function render($viewPath, $data = [])
     {
         extract($data); // Extract data as variables for the view
-        require __DIR__ . "/../views/layouts/header.php";
-        require __DIR__ . "/../views/$viewPath.php";
-        require __DIR__ . "/../views/layouts/footer.php";
+        require __DIR__ . "/../views/layouts/header.phtml";
+        require __DIR__ . "/../views/$viewPath.phtml";
+        require __DIR__ . "/../views/layouts/footer.phtml";
     }
 
     /**
@@ -36,8 +36,8 @@ class Controller
     protected function component($viewPath, $script = true)
     {
         $type = $script ? 'script' : 'style';
-        if (file_exists(__DIR__ . "/../views/$viewPath/component/$type.php")) {
-            return __DIR__ . "/../views/$viewPath/component/$type.php";
+        if (file_exists(__DIR__ . "/../views/$viewPath/component/$type.phtml")) {
+            return __DIR__ . "/../views/$viewPath/component/$type.phtml";
         } else {
             return "";
         }

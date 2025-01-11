@@ -16,8 +16,8 @@ route('GET', '/', [$HomeController, 'index']);
 
 route('GET', '/login', [$AuthController, 'login']);
 route('POST', '/login', [$AuthController, 'loginAction']);
-route('GET', '/register', [$AuthController, 'register']);
-route('POST', '/register', [$AuthController, 'register']);
+// route('GET', '/register', [$AuthController, 'register']);
+// route('POST', '/register', [$AuthController, 'register']);
 route('GET', '/logout', [$AuthController, 'logout']);
 
 route('GET', '/eco-facility/seeder', [$EcoFacilityController, 'seed']);
