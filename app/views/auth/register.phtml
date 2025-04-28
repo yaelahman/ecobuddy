@@ -12,7 +12,7 @@
             <?php if (!empty($error)): ?>
               <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
-            <form method="POST" action="<?= BASE_URL ?>/register">
+            <form method="POST" action="<?= BASE_URL ?>/auth/register">
               <!-- username Input -->
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -34,7 +34,7 @@
             </form>
           </div>
           <div class="text-center py-3">
-            <span>Already have an account?</span> <a href="<?= BASE_URL ?>/login" class="text-primary">Login</a>
+            <span>Already have an account?</span> <a href="<?= BASE_URL ?>/auth/login" class="text-primary">Login</a>
           </div>
         </div>
       </div>

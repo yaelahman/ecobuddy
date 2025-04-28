@@ -14,4 +14,3 @@ middleware('auth', function () {
 middleware('manager', function () {
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Manager'; // Check if the user is a Manager
 });
-

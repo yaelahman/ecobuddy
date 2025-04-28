@@ -34,4 +34,46 @@ class HomeController extends Controller
         $user = $this->userModel->all();
         $this->render('home/index', ['user' => $user]);
     }
+
+    /**
+     * Get data method - accessible via /home/get-data
+     * @middleware auth
+     */
+    public function get_data()
+    {
+        $data = $this->userModel->all();
+        // Return data as JSON
+        header('Content-Type: application/json');
+        echo json_encode(['data' => $data]);
+    }
+
+    /**
+     * Example of a POST method
+     * This will be accessible via POST to /home/save-profile
+     */
+    public function post_save_profile()
+    {
+        // Process POST data
+        $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+
+        // Process data...
+
+        // Redirect back to profile page
+        $this->redirect('/home/profile');
+    }
+
+    /**
+     * Example method with parameters - accessible via /home/profile/{id}
+     * @middleware auth
+     */
+    public function profile($id)
+    {
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            $this->error404();
+        }
+
+        $this->render('home/profile', ['user' => $user]);
+    }
 }
