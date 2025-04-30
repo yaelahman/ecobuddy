@@ -25,36 +25,23 @@ class EcoFacility extends Model
      * @param string $orderDirection The direction of the order.
      * @return array An array of ecoFacilities fetched from the table.
      */
-    public function getAll($start = 0, $length = 10, $search = '', $orderColumn = 'id', $orderDirection = 'DESC')
+    public function getAll($offset = 0, $limit = 10, $search = '')
     {
-        // Base query with join to ecoFacilityStatus
-        $query = "SELECT $this->table.*, ecoFacilityStatus.isVisited, ecoFacilityStatus.statusComment FROM $this->table LEFT JOIN ecoFacilityStatus ON $this->table.id = ecoFacilityStatus.facilityId AND ecoFacilityStatus.contributor = :userId";
+        $query = "SELECT $this->table.*, ecoFacilityStatus.isVisited, ecoFacilityStatus.statusComment 
+              FROM $this->table 
+              LEFT JOIN ecoFacilityStatus ON $this->table.id = ecoFacilityStatus.facilityId AND ecoFacilityStatus.contributor = :userId 
+              WHERE title LIKE :search 
+              OR description LIKE :search 
+              ORDER BY id DESC 
+              LIMIT :limit OFFSET :offset";
 
-        // Add search filter if provided
-        if (!empty($search)) {
-            $query .= " WHERE $this->table.title LIKE :search OR $this->table.description LIKE :search OR $this->table.county LIKE :search OR $this->table.town LIKE :search";
-        }
-
-        // Add ordering
-        $query .= " ORDER BY $orderColumn $orderDirection";
-
-        // Add pagination
-        $query .= " LIMIT :start, :length";
-
-        // Prepare statement
         $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ':search' => "%$search%",
+            ':limit' => $limit,
+            ':offset' => $offset
+        ]);
 
-        // Bind parameters
-        if (isset($_SESSION['user_id']))
-            $stmt->bindValue(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
-
-        if (!empty($search)) {
-            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
-        }
-        $stmt->bindValue(':start', (int)$start, PDO::PARAM_INT);
-        $stmt->bindValue(':length', (int)$length, PDO::PARAM_INT);
-
-        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -65,10 +52,16 @@ class EcoFacility extends Model
      * 
      * @return int The total number of ecoFacilities.
      */
-    public function getTotalRecords()
+    public function getTotalRecords($search = '')
     {
-        $stmt = $this->db->query("SELECT COUNT(*) as count FROM $this->table");
-        return $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        $query = "SELECT COUNT(*) FROM ecoFacilities 
+              WHERE title LIKE :search 
+              OR description LIKE :search";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([':search' => "%$search%"]);
+
+        return $stmt->fetchColumn();
     }
 
     /**

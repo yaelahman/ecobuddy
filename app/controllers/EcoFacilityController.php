@@ -43,64 +43,22 @@ class EcoFacilityController extends Controller
      */
     public function datatable()
     {
-        // Capture DataTables parameters
-        $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-        $length = isset($_GET['length']) ? (int)$_GET['length'] : 10;
-        $search = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
-        $orderColumnIndex = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 0;
-        $orderDirection = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'DESC';
-
-        // Define orderable columns (adjust based on your database schema)
-        $columns = ['id', 'title', 'description', 'category', 'town', 'county', 'postcode'];
-        $orderColumn = isset($columns[$orderColumnIndex]) ? $columns[$orderColumnIndex] : 'id';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        $search = isset($_GET['search']) ? $_GET['search'] : '';
 
         // Get data
-        $ecoFacility = $this->ecoFacilityModel->getAll($start, $length, $search, $orderColumn, $orderDirection);
-        $totalRecords = $this->ecoFacilityModel->getTotalRecords();
-        $filteredRecords = !empty($search) ? $this->ecoFacilityModel->getFilteredRecords($search) : $totalRecords;
+        $ecoFacility = $this->ecoFacilityModel->getAll($offset, $limit, $search);
+        $totalRecords = $this->ecoFacilityModel->getTotalRecords($search);
 
         // Prepare response
         $response = [
-            "draw" => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
-            "recordsTotal" => $totalRecords,
-            "recordsFiltered" => $filteredRecords,
-            "data" => []
+            "data" => $ecoFacility,
+            "total" => $totalRecords,
+            "has_more" => ($page * $limit) < $totalRecords
         ];
 
-
-        foreach ($ecoFacility as $facility) {
-            $action = '';
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager') {
-                $action .= '<a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm">Edit</a>
-                            <button class="btn btn-danger btn-sm delete-button" data-id="' . $facility['id'] . '">Delete</button>';
-            }
-
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'User') {
-                if ($facility['isVisited']) {
-                    $action .= '<button class="btn btn-primary btn-sm" data-id="' . $facility['id'] . '" disabled>Visited</button>';
-                } else {
-                    $action .= '<button class="btn btn-primary btn-sm visit-button" data-id="' . $facility['id'] . '">Mark as Visited</button>';
-                }
-            }
-
-
-            $response['data'][] = [
-                $facility['title'],
-                $facility['description'],
-                $facility['category'],
-                $facility['town'],
-                $facility['county'],
-                $facility['postcode'],
-                $action ?
-                    '
-                    <div class="btn-group text-nowrap">
-                        ' . $action . '
-                    </div>
-                ' : '-',
-            ];
-        }
-
-        // Output JSON response
         header('Content-Type: application/json');
         echo json_encode($response);
     }
@@ -111,6 +69,7 @@ class EcoFacilityController extends Controller
      */
     public function get_create()
     {
+        $this->isManager();
         $this->render('eco_facility/create', [
             'category' => $this->ecoCategoryModel->all()
         ]);
@@ -155,6 +114,7 @@ class EcoFacilityController extends Controller
      */
     public function get_edit($id)
     {
+        $this->isManager();
         // Fetch the existing eco facility data
         $facility = $this->ecoFacilityModel->find($id);
 
@@ -191,9 +151,13 @@ class EcoFacilityController extends Controller
             'title' => $_POST['title'] ?? $facility['title'],
             'category' => $_POST['category'] ?? $facility['category'],
             'description' => $_POST['description'] ?? $facility['description'],
+            'houseNumber' => $_POST['houseNumber'] ?? $facility['houseNumber'] ?? '',
+            'streetName' => $_POST['streetName'] ?? $facility['streetName'] ?? '',
             'town' => $_POST['town'] ?? $facility['town'],
             'county' => $_POST['county'] ?? $facility['county'],
             'postcode' => $_POST['postcode'] ?? $facility['postcode'],
+            'lat' => $_POST['lat'] ?? $facility['lat'] ?? 0,
+            'lng' => $_POST['lng'] ?? $facility['lng'] ?? 0,
             'contributor' => $_SESSION['user_id']
         ];
 

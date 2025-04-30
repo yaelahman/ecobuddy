@@ -102,4 +102,23 @@ class Controller
 
         return "$controllerName/$method";
     }
+
+    protected function isAuthenticated()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            require __DIR__ . "../../views/errors/403.phtml";
+            exit(1);
+        }
+    }
+
+    protected function isManager()
+    {
+        $this->isAuthenticated();
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'Manager') {
+            http_response_code(403);
+            require __DIR__ . "../../views/errors/403.phtml";
+            exit(1);
+        }
+    }
 }

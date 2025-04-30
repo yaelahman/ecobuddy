@@ -1,15 +1,16 @@
 <?php
 // Include necessary files
 require_once './app/config/database.php'; // Database connection
-require_once './app/config/base.php';     // Base configuration
-require_once './app/routes/middleware.php'; // middleware
 
-// Function to define route (kept for backward compatibility)
-function route($method, $uri, $callback, $middleware = null)
-{
-    global $routes;
-    $routes[] = compact('method', 'uri', 'callback', 'middleware');
-}
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+define("BASE_URL", rtrim((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']), '/'));
+
+session_start();
+
 
 // Auto-discover controllers in the controllers directory
 function discoverControllers()
@@ -110,61 +111,9 @@ function dispatch()
 
             // Check if the method exists and is callable
             if (method_exists($controller, $methodName)) {
-                // Get method metadata using ReflectionMethod
-                $reflection = new ReflectionMethod($controller, $methodName);
-
-                // Check for middleware attribute or comment in method doc
-                $docComment = $reflection->getDocComment();
-                $middlewareName = null;
-
-                if ($docComment) {
-                    // Parse @middleware annotation
-                    if (preg_match('/@middleware\s+([^\s]+)/', $docComment, $matches)) {
-                        $middlewareName = trim($matches[1]);
-                    }
-                }
-
-                // If middleware is assigned, execute it
-                if ($middlewareName && isset($middlewares[$middlewareName])) {
-                    $middlewareResult = call_user_func($middlewares[$middlewareName]);
-                    if (!$middlewareResult) {
-                        // Middleware failed, return or redirect
-                        http_response_code(403);
-                        require __DIR__ . "/app/views/errors/403.phtml";
-                        return;
-                    }
-                }
 
                 // Call the method with parameters
                 return call_user_func_array([$controller, $methodName], $parameters);
-            }
-        }
-
-        // Handle legacy routes for backward compatibility
-        global $routes;
-        if (!empty($routes)) {
-            foreach ($routes as $route) {
-                if (
-                    $route['method'] === $requestedMethod &&
-                    preg_match('#^' . $route['uri'] . '$#', $requestedUri, $matches)
-                ) {
-                    array_shift($matches); // Remove the full match
-
-                    // If a middleware is assigned, execute it
-                    if (isset($route['middleware']) && isset($middlewares[$route['middleware']])) {
-                        $middlewareResult = call_user_func($middlewares[$route['middleware']]);
-                        if (!$middlewareResult) {
-                            // Middleware failed, return or redirect
-                            http_response_code(403);
-                            require __DIR__ . "/app/views/errors/403.phtml";
-                            return;
-                        }
-                    }
-
-                    // Execute the route's callback with sanitized matches
-                    $sanitizedMatches = array_map('htmlspecialchars', $matches);
-                    return call_user_func_array($route['callback'], $sanitizedMatches);
-                }
             }
         }
 
@@ -174,12 +123,6 @@ function dispatch()
     } catch (\Exception $e) {
         echo "Error: " . $e->getMessage();
     }
-}
-
-// For backward compatibility, include web.php if it exists
-if (file_exists('./app/routes/web.php')) {
-    $routes = [];
-    require_once './app/routes/web.php';
 }
 
 // Dispatch the current request
