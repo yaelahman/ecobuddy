@@ -83,6 +83,41 @@ class EcoFacilityController extends Controller
     }
 
     /**
+     * Shows the details of an eco facility.
+     * @middleware auth
+     */
+    public function get_detail($id)
+    {
+        $this->isAuthenticated();
+        // Fetch the eco facility data
+        $facility = $this->ecoFacilityModel->find($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo "Eco facility not found.";
+            return;
+        }
+
+        // Fetch the status of the eco facility for the current user
+        $status = $this->ecoFacilityStatusModel->where('facilityId', '=', $id);
+        // Get the contributor information for each status entry
+        foreach ($status as $key => $statusItem) {
+            $contributor = $this->userModel->find($statusItem['contributor']);
+            if ($contributor) {
+                $status[$key]['contributorName'] = $contributor['username'] ?? 'Unknown';
+            } else {
+                $status[$key]['contributorName'] = 'Unknown';
+            }
+        }
+
+        $this->render('eco_facility/detail', [
+            'ecoFacility' => $facility,
+            'status' => $status,
+            'category' => $this->ecoCategoryModel->all()
+        ]);
+    }
+
+    /**
      * Handles the submission of a new eco facility.
      * @middleware manager
      */

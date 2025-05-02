@@ -1,0 +1,104 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1><?= htmlspecialchars($ecoFacility['title']) ?></h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Category:</strong>
+                        <?php foreach ($category as $cat): ?>
+                            <?php if ($cat['id'] == $ecoFacility['category']): ?>
+                                <?= htmlspecialchars($cat['name']) ?>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Address:</strong>
+                        <?php
+                        $addressParts = [];
+                        if (!empty($ecoFacility['houseNumber'])) $addressParts[] = htmlspecialchars($ecoFacility['houseNumber']);
+                        if (!empty($ecoFacility['streetName'])) $addressParts[] = htmlspecialchars($ecoFacility['streetName']);
+                        if (!empty($ecoFacility['town'])) $addressParts[] = htmlspecialchars($ecoFacility['town']);
+                        if (!empty($ecoFacility['county'])) $addressParts[] = htmlspecialchars($ecoFacility['county']);
+                        if (!empty($ecoFacility['postcode'])) $addressParts[] = htmlspecialchars($ecoFacility['postcode']);
+                        echo implode(', ', $addressParts);
+                        ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Description:</strong><br>
+                        <?= nl2br(htmlspecialchars($ecoFacility['description'])) ?>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <h4>Visitor Comments</h4>
+                    <?php if (!empty($status)): ?>
+                        <div class="comment-list">
+                            <?php foreach ($status as $comment): ?>
+                                <div class="comment-item border-bottom py-2">
+                                    <p><?= nl2br(htmlspecialchars($comment['statusComment'])) ?></p>
+                                    <small class="text-muted">
+                                        <?= $comment['isVisited'] ? 'Has visited' : 'Has not visited' ?> •
+                                        Contributed by <?= htmlspecialchars($comment['contributorName']) ?>
+                                    </small>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted">No comments yet.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Location</h3>
+                </div>
+                <div class="card-body">
+                    <div id="facilityMapDetail" class="map-container" style="height: 300px;"></div>
+                    <p>Latitude: <?= htmlspecialchars($ecoFacility['lat'] ?? 'N/A') ?></p>
+                    <p>Longitude: <?= htmlspecialchars($ecoFacility['lng'] ?? 'N/A') ?></p>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Check if coordinates are available
+                            <?php if (!empty($ecoFacility['lat']) && !empty($ecoFacility['lng'])): ?>
+                                var lat = <?= floatval($ecoFacility['lat']) ?>;
+                                var lng = <?= floatval($ecoFacility['lng']) ?>;
+
+                                // Initialize the map
+                                var map = L.map('facilityMapDetail').setView([lat, lng], 15);
+
+                                // Add OpenStreetMap tile layer
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                }).addTo(map);
+
+                                // Add a marker for the facility
+                                L.marker([lat, lng])
+                                    .addTo(map)
+                                    .bindPopup('<?= htmlspecialchars(addslashes($ecoFacility['title'])) ?>');
+                            <?php else: ?>
+                                document.getElementById('facilityMapDetail').innerHTML = '<div class="alert alert-warning">No location coordinates available</div>';
+                            <?php endif; ?>
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="actions mt-3">
+                <a href="/eco-facility" class="btn btn-secondary">Back to List</a>
+
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                    <a href="/eco_facility/edit/<?= $ecoFacility['id'] ?>" class="btn btn-warning">Edit</a>
+                    <a href="/eco_facility/delete/<?= $ecoFacility['id'] ?>" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this facility?')">Delete</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>

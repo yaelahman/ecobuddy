@@ -134,23 +134,15 @@
                 <td>${facility.postcode}</td>
                 <td>
                     <div class="btn-group text-nowrap">
-                        <button class="btn btn-info btn-sm view-location" 
-                                data-id="${facility.id}"
-                                data-title="${facility.title}"
-                                data-lat="${facility.lat || 0}"
-                                data-lng="${facility.lng || 0}"
-                                data-address="${formatAddress(facility)}">
-                            <i class="fas fa-map-marker-alt"></i> View Location
-                        </button>
+                        <a href="<?= BASE_URL ?>/eco-facility/detail/${facility.id}" class="btn btn-info btn-sm">
+                            <i class="fas fa-map-marker-alt"></i> View Details
+                        </a>
                         ${generateActionButtons(facility)}
                     </div>
                 </td>
             `;
 
             container.appendChild(row);
-
-            const viewLocationBtn = row.querySelector('.view-location');
-            viewLocationBtn.addEventListener('click', showLocationModal);
         });
     }
 
