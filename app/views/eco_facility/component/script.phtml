@@ -58,6 +58,12 @@
 
     loadData();
 
+    document.getElementById('search').addEventListener('keyup', function() {
+        const searchValue = this.value;
+        currentPage = 1;
+        loadData(searchValue);
+    });
+
     window.addEventListener('scroll', function() {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             if (!isLoading && hasMore) {
@@ -86,17 +92,17 @@
         alertContainer.style.display = 'none';
     });
 
-    async function loadData() {
+    async function loadData(search = '') {
         isLoading = true;
         loading.style.display = 'block';
 
         try {
             const response = await fetch(
-                `<?= BASE_URL ?>/eco-facility/datatable?page=${currentPage}`, {
+                `<?= BASE_URL ?>/eco-facility/datatable?page=${currentPage}&search=${search}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                    },
                 }
             );
 
@@ -122,6 +128,7 @@
     }
 
     function renderData(data) {
+        if(currentPage == 1) container.innerHTML = ''
         data.forEach(facility => {
             const row = document.createElement('tr');
 
@@ -268,7 +275,7 @@
 
     async function deleteFacility(facilityId, rowElement) {
         try {
-            const response = await fetch(`<?= BASE_URL ?>/eco-facility/delete/${facilityId}`, {
+            const response = await fetch(`<?= BASE_URL ?>/eco-facility/facility/${facilityId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

@@ -273,11 +273,11 @@
 </style>
 
 <!-- Update Loading Indicator -->
-<div id="loading" class="text-center py-3" style="display: none;">
+<!-- <div id="loading" class="text-center py-3" style="display: none;">
     <div class="loading-dot"></div>
     <div class="loading-dot"></div>
     <div class="loading-dot"></div>
-</div>
+</div> -->
 
 <div class="container">
     <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Manager'): ?>
@@ -287,6 +287,9 @@
             </a>
         </div>
     <?php endif; ?>
+    <div class="form-group mb-3">
+        <input type="text" class="form-control" placeholder="Search..." id="search">
+    </div>
     <div class="table-responsive">
         <table class="table" id="eco-table">
             <thead>

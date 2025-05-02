@@ -32,6 +32,10 @@ class EcoFacility extends Model
               LEFT JOIN ecoFacilityStatus ON $this->table.id = ecoFacilityStatus.facilityId AND ecoFacilityStatus.contributor = :userId 
               WHERE title LIKE :search 
               OR description LIKE :search 
+              OR houseNumber LIKE :search 
+              OR streetName LIKE :search 
+              OR town LIKE :search 
+              OR county LIKE :search 
               ORDER BY id DESC 
               LIMIT :limit OFFSET :offset";
 

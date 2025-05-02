@@ -51,10 +51,15 @@ class EcoFacilityController extends Controller
         // Get data
         $ecoFacility = $this->ecoFacilityModel->getAll($offset, $limit, $search);
         foreach ($ecoFacility as &$facility) {
-            $status = $this->ecoFacilityStatusModel->findWhere([
-                'contributor' => $_SESSION['user_id'],
-                'facilityId' => $facility['id']
-            ]);
+            if(isset($_SESSION['user_id'])) {
+
+                $status = $this->ecoFacilityStatusModel->findWhere([
+                    'contributor' => $_SESSION['user_id'],
+                    'facilityId' => $facility['id']
+                ]);
+            } else {
+                $status = false;
+            }
             $facility['isVisited'] = $status ? 1 : 0;
         }
         $totalRecords = $this->ecoFacilityModel->getTotalRecords($search);
@@ -88,7 +93,7 @@ class EcoFacilityController extends Controller
      */
     public function get_detail($id)
     {
-        $this->isAuthenticated();
+        // $this->isAuthenticated();
         // Fetch the eco facility data
         $facility = $this->ecoFacilityModel->find($id);
 
