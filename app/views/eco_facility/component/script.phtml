@@ -94,7 +94,7 @@
 
     async function loadData(search = '') {
         isLoading = true;
-        loading.style.display = 'block';
+        // loading.style.display = 'block';
 
         try {
             const response = await fetch(
@@ -123,12 +123,21 @@
             });
         } finally {
             isLoading = false;
-            loading.style.display = 'none';
+            // loading.style.display = 'none';
         }
     }
 
     function renderData(data) {
-        if(currentPage == 1) container.innerHTML = ''
+        if(currentPage == 1) {
+            container.innerHTML = ''
+            if(data.length < 1) {
+                const notFoundRow = document.createElement('tr');
+                notFoundRow.innerHTML = `
+                    <td colspan="7" class="text-center">No facilities found.</td>
+                `;
+                container.appendChild(notFoundRow);
+            }
+        }
         data.forEach(facility => {
             const row = document.createElement('tr');
 
