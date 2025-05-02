@@ -50,6 +50,13 @@ class EcoFacilityController extends Controller
 
         // Get data
         $ecoFacility = $this->ecoFacilityModel->getAll($offset, $limit, $search);
+        foreach ($ecoFacility as &$facility) {
+            $status = $this->ecoFacilityStatusModel->findWhere([
+                'contributor' => $_SESSION['user_id'],
+                'facilityId' => $facility['id']
+            ]);
+            $facility['isVisited'] = $status ? 1 : 0;
+        }
         $totalRecords = $this->ecoFacilityModel->getTotalRecords($search);
 
         // Prepare response
@@ -180,9 +187,16 @@ class EcoFacilityController extends Controller
      */
     public function post_visit($id)
     {
+        // Get data from the request body
+        $requestData = json_decode(file_get_contents('php://input'), true);
+        $comment = isset($requestData['comment']) ? $requestData['comment'] : '-';
+
         // Fetch the existing eco facility data
         $facility = $this->ecoFacilityModel->find($id);
-        $status = $this->ecoFacilityStatusModel->where('facilityId', '=', $id);
+        $status = $this->ecoFacilityStatusModel->findWhere([
+            'contributor' => $_SESSION['user_id'],
+            'facilityId' => $id
+        ]);
 
         if (!$facility) {
             // Handle error if facility not found
@@ -194,11 +208,11 @@ class EcoFacilityController extends Controller
         $data = [
             'facilityId' => $id,
             'isVisited' => 1,
-            'statusComment' => '-',
+            'statusComment' => $comment,
             'contributor' => $_SESSION['user_id']
         ];
 
-        if ($status) {
+        if (!$status) {
             $changeStatus = $this->ecoFacilityStatusModel->create($data);
         } else {
             $changeStatus = $this->ecoFacilityStatusModel->update($id, $data);

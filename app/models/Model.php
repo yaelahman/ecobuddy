@@ -56,6 +56,50 @@ class Model
     }
 
     /**
+     * Find a record by multiple column conditions.
+     * 
+     * Prepares and executes a SELECT query to find a record that matches multiple criteria.
+     * 
+     * @param array $conditions An associative array of column => value pairs for the WHERE clause.
+     * @return array|null The found record or null if not found.
+     */
+    public function findWhere($conditions)
+    {
+        $whereClause = [];
+        foreach (array_keys($conditions) as $column) {
+            $whereClause[] = "{$column} = :{$column}";
+        }
+
+        $query = "SELECT * FROM {$this->table} WHERE " . implode(' AND ', $whereClause) . " LIMIT 1";
+        $stmt = $this->db->prepare($query);
+
+        foreach ($conditions as $column => $value) {
+            $stmt->bindValue(":{$column}", $value);
+        }
+
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Find a record by specific column and value.
+     * 
+     * Prepares and executes a SELECT query to find a record that matches the given criteria.
+     * 
+     * @param string $column The column name to search by.
+     * @param mixed $value The value to search for.
+     * @return array|null The found record or null if not found.
+     */
+    public function findBy($column, $value)
+    {
+        $query = "SELECT * FROM {$this->table} WHERE {$column} = :value LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindValue(':value', $value);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Retrieve records based on a WHERE clause.
      * 
      * Prepares and executes a SELECT query with a WHERE clause to filter records.

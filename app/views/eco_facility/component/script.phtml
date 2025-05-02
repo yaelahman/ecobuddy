@@ -31,23 +31,7 @@
 
         if (event.target.classList.contains('visit-button')) {
             const facilityId = event.target.getAttribute('data-id');
-            if (confirm('Are you sure you mark as visited this eco facility?')) {
-                fetch(`<?= BASE_URL ?>/eco-facility/visit/${facilityId}`, {
-                        method: 'POST'
-                    })
-                    .then(response => response.json().then(data => {
-                        console.log(data)
-                        if (data.success) {
-                            location.reload(); // Reload the page to see the updated list
-                        } else {
-                            alert(data.error || 'Error marking eco facility.');
-                        }
-                    }))
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while marking the eco facility.');
-                    });
-            }
+            markAsVisited(facilityId, event.target);
         }
     });
 </script>
@@ -327,31 +311,58 @@
 
     async function markAsVisited(facilityId, buttonElement) {
         try {
-            const response = await fetch(`<?= BASE_URL ?>/eco-facility/visit/${facilityId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            Swal.fire({
+                title: "Mark Facility as Visited",
+                text: "Would you like to add a comment about your visit?",
+                input: "textarea",
+                inputPlaceholder: "Share your experience (optional)",
+                inputAttributes: {
+                    autocapitalize: "off"
+                },
+                showCancelButton: true,
+                confirmButtonText: "Mark as Visited",
+                showLoaderOnConfirm: true,
+                preConfirm: async (comment) => {
+                    try {
+                        const response = await fetch(`<?= BASE_URL ?>/eco-facility/visit/${facilityId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                comment: comment
+                            })
+                        });
+
+                        if (!response.ok) {
+                            return Swal.showValidationMessage(`Request failed: ${response.status}`);
+                        }
+                        return response.json();
+                    } catch (error) {
+                        return Swal.showValidationMessage(`Request failed: ${error}`);
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (result.value.success) {
+                        buttonElement.textContent = 'Visited';
+                        buttonElement.disabled = true;
+                        buttonElement.classList.remove('visit-button');
+                        Swal.fire({
+                            title: "Success",
+                            text: "Facility marked as visited successfully!",
+                            icon: "success",
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: result.value.error || 'Error marking facility as visited',
+                            icon: "error",
+                        });
+                    }
                 }
             });
-
-            const result = await response.json();
-
-            if (result.success) {
-                buttonElement.textContent = 'Visited';
-                buttonElement.disabled = true;
-                buttonElement.classList.remove('visit-button');
-                Swal.fire({
-                    title: "Success",
-                    text: "Facility marked as visited successfully!",
-                    icon: "success",
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: result.error || 'Error marking facility as visited',
-                    icon: "error",
-                });
-            }
         } catch (error) {
             console.error('Error marking facility as visited:', error);
             Swal.fire({
