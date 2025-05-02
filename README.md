@@ -40,7 +40,6 @@ EcoBuddy is a lightweight MVC PHP framework designed for rapid development of we
 ecobuddy-framework/
 ├── app/
 │   ├── config/
-│   │   ├── base.php
 │   │   └── database.php
 │   ├── controllers/
 │   │   ├── Controller.php
@@ -54,8 +53,6 @@ ecobuddy-framework/
 │   │   ├── EcoFacilityStatus.php
 │   │   ├── EcoUserTypes.php
 │   │   └── EcoFacility.php
-│   ├── routes/
-│   │   └── middleware.php
 │   └── views/
 │       ├── layouts/
 │       │   ├── header.phtml
@@ -96,7 +93,7 @@ ecobuddy-framework/
 
 ## Configuration
 
-### Base Configuration (app/config/base.php)
+### Base Configuration (index.php)
 
 This file contains basic application settings:
 

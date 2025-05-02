@@ -11,7 +11,7 @@
         if (event.target.classList.contains('delete-button')) {
             const facilityId = event.target.getAttribute('data-id');
             if (confirm('Are you sure you want to delete this eco facility?')) {
-                fetch(`<?= BASE_URL ?>/eco-facility/delete/${facilityId}`, {
+                fetch(`<?= BASE_URL ?>/eco-facility/facility/${facilityId}`, {
                         method: 'DELETE'
                     })
                     .then(response => response.json().then(data => {
