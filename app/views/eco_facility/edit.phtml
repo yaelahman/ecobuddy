@@ -1,51 +1,181 @@
 <main class="main">
-
-    <!-- Hero Section -->
     <section id="hero" class="py-5">
-
         <div class="container py-5" data-aos="fade-up" data-aos-delay="100">
-
             <div class="py-3">
                 <h2>Edit Eco Facility</h2>
                 <div class="mb-3">
                     <a href="<?= BASE_URL ?>/eco-facility" class="btn btn-secondary">Back to Eco Facilities List</a>
                 </div>
+
                 <form action="<?= BASE_URL ?>/eco-facility/edit/<?= $ecoFacility['id'] ?>" method="POST">
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
                         <input type="text" class="form-control" id="title" name="title" value="<?= htmlspecialchars($ecoFacility['title']) ?>" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
                         <textarea class="form-control" id="description" name="description" required><?= htmlspecialchars($ecoFacility['description']) ?></textarea>
                     </div>
+
                     <div class="mb-3">
                         <label for="category" class="form-label">Category</label>
                         <select class="form-control" id="category" name="category" required>
                             <option value="" disabled>Select Category</option>
                             <?php foreach ($category as $cat): ?>
-                                <option value="<?= $cat['id'] ?>" <?= $cat['id'] == $ecoFacility['category'] ? 'selected' : '' ?>><?= htmlspecialchars($cat['name']) ?></option>
+                                <option value="<?= $cat['id'] ?>" <?= $cat['id'] == $ecoFacility['category'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cat['name']) ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="town" class="form-label">Town</label>
-                        <input type="text" class="form-control" id="town" name="town" value="<?= htmlspecialchars($ecoFacility['town']) ?>" required>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="houseNumber" class="form-label">House Number</label>
+                                <input type="text" class="form-control" id="houseNumber" name="houseNumber" value="<?= htmlspecialchars($ecoFacility['houseNumber'] ?? '') ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="streetName" class="form-label">Street Name</label>
+                                <input type="text" class="form-control" id="streetName" name="streetName" value="<?= htmlspecialchars($ecoFacility['streetName'] ?? '') ?>">
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="county" class="form-label">County</label>
-                        <input type="text" class="form-control" id="county" name="county" value="<?= htmlspecialchars($ecoFacility['county']) ?>" required>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="town" class="form-label">Town</label>
+                                <input type="text" class="form-control" id="town" name="town" value="<?= htmlspecialchars($ecoFacility['town']) ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="county" class="form-label">County</label>
+                                <input type="text" class="form-control" id="county" name="county" value="<?= htmlspecialchars($ecoFacility['county']) ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="postcode" class="form-label">Postcode</label>
+                                <input type="text" class="form-control" id="postcode" name="postcode" value="<?= htmlspecialchars($ecoFacility['postcode']) ?>" required>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="mb-3">
-                        <label for="postcode" class="form-label">Postcode</label>
-                        <input type="text" class="form-control" id="postcode" name="postcode" value="<?= htmlspecialchars($ecoFacility['postcode']) ?>" required>
+                        <label class="form-label">Location</label>
+                        <div id="map" style="height: 400px; width: 100%; border-radius: 5px;"></div>
+                        <div class="mt-2">
+                            <button type="button" id="getLocation" class="btn btn-secondary">Get My Location</button>
+                            <span id="locationStatus" class="ms-2"></span>
+                        </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="lat" class="form-label">Latitude</label>
+                                <input type="text" class="form-control" id="lat" name="lat" value="<?= htmlspecialchars($ecoFacility['lat'] ?? '') ?>" readonly required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="lng" class="form-label">Longitude</label>
+                                <input type="text" class="form-control" id="lng" name="lng" value="<?= htmlspecialchars($ecoFacility['lng'] ?? '') ?>" readonly required>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Update Eco Facility</button>
                 </form>
             </div>
-
         </div>
-
     </section>
-
 </main>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map').setView([<?= $ecoFacility['lat'] ?? '51.505' ?>, <?= $ecoFacility['lng'] ?? '-0.09' ?>], 13);
+        var marker;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        function updateMarkerPosition(lat, lng) {
+            document.getElementById('lat').value = lat.toFixed(6);
+            document.getElementById('lng').value = lng.toFixed(6);
+
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng], {
+                    draggable: true
+                }).addTo(map);
+                marker.on('dragend', function(e) {
+                    var pos = marker.getLatLng();
+                    updateMarkerPosition(pos.lat, pos.lng);
+                });
+            }
+
+            map.setView([lat, lng], 15);
+        }
+
+        if (<?= isset($ecoFacility['lat']) && isset($ecoFacility['lng']) ? 'true' : 'false' ?>) {
+            updateMarkerPosition(<?= $ecoFacility['lat'] ?? '51.505' ?>, <?= $ecoFacility['lng'] ?? '-0.09' ?>);
+        }
+
+        map.on('click', function(e) {
+            updateMarkerPosition(e.latlng.lat, e.latlng.lng);
+        });
+
+        document.getElementById('getLocation').addEventListener('click', function() {
+            var statusElement = document.getElementById('locationStatus');
+            statusElement.textContent = "Getting location...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    updateMarkerPosition(lat, lng);
+                    statusElement.textContent = "Location found!";
+                    statusElement.style.color = "green";
+
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.address) {
+                                if (data.address.house_number) document.getElementById('houseNumber').value = data.address.house_number;
+                                if (data.address.road) document.getElementById('streetName').value = data.address.road;
+                                if (data.address.city || data.address.town || data.address.village)
+                                    document.getElementById('town').value = data.address.city || data.address.town || data.address.village;
+                                if (data.address.country) document.getElementById('county').value = data.address.country;
+                                if (data.address.postcode) document.getElementById('postcode').value = data.address.postcode;
+                            }
+                        }).catch(error => console.error("Address lookup error:", error));
+                }, function(error) {
+                    statusElement.textContent = "Error: " + error.message;
+                    statusElement.style.color = "red";
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                statusElement.textContent = "Geolocation not supported";
+                statusElement.style.color = "red";
+            }
+        });
+
+        setTimeout(() => map.invalidateSize(), 100);
+    });
+</script>

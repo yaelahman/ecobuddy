@@ -1,6 +1,5 @@
 <?php
 
-require __DIR__ . "/../config/base.php";
 /**
  * Controller is the base class for all controllers in the application.
  * It provides common functionality for rendering views, handling redirects, and error handling.
@@ -9,9 +8,9 @@ class Controller
 {
     /**
      * Renders a view file with the given path and data.
-     * 
+     *
      * This method extracts the provided data as variables and includes the header, view, and footer files.
-     * 
+     *
      * @param string $viewPath The path to the view file relative to the views directory.
      * @param array $data An array of data to be extracted and made available to the view.
      */
@@ -25,10 +24,10 @@ class Controller
 
     /**
      * Returns the path to a component file (script or style) if it exists.
-     * 
+     *
      * This method checks if a component file exists for the given view path and type (script or style).
      * If the file exists, it returns the path to the file; otherwise, it returns an empty string.
-     * 
+     *
      * @param string $viewPath The path to the view relative to the views directory.
      * @param bool $script Indicates whether to look for a script or style component. Defaults to true for script.
      * @return string The path to the component file or an empty string if it does not exist.
@@ -45,10 +44,10 @@ class Controller
 
     /**
      * Redirects to a specific URI.
-     * 
+     *
      * This method constructs the full URL by appending the given URI to the base URL and sets the Location header.
      * It then exits the script to prevent further execution.
-     * 
+     *
      * @param string $uri The URI to redirect to.
      */
     protected function redirect($uri)
@@ -60,7 +59,7 @@ class Controller
 
     /**
      * Handles 404 errors by setting the HTTP response code and displaying a message.
-     * 
+     *
      * This method sets the HTTP response code to 404 and outputs a "Page Not Found" message.
      * It then exits the script to prevent further execution.
      */
@@ -69,5 +68,57 @@ class Controller
         http_response_code(404);
         echo "Page Not Found";
         exit;
+    }
+
+    /**
+     * Helper method to get the view path based on controller and method name
+     * 
+     * @param string $method The method name
+     * @return string The view path
+     */
+    protected function getViewPath($method = null)
+    {
+        if ($method === null) {
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $method = $backtrace[1]['function'];
+        }
+
+        // Strip HTTP method prefix if present (get_, post_, etc.)
+        $httpMethods = ['get', 'post', 'put', 'delete'];
+        foreach ($httpMethods as $httpMethod) {
+            if (strpos($method, $httpMethod . '_') === 0) {
+                $method = substr($method, strlen($httpMethod) + 1);
+                break;
+            }
+        }
+
+        // Convert method name to kebab-case for view path
+        $method = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $method));
+        $method = str_replace('_', '-', $method);
+
+        // Get controller name without "Controller" suffix
+        $controllerName = str_replace('Controller', '', get_class($this));
+        $controllerName = strtolower($controllerName);
+
+        return "$controllerName/$method";
+    }
+
+    protected function isAuthenticated()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            require __DIR__ . "../../views/errors/403.phtml";
+            exit(1);
+        }
+    }
+
+    protected function isManager()
+    {
+        $this->isAuthenticated();
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'Manager') {
+            http_response_code(403);
+            require __DIR__ . "../../views/errors/403.phtml";
+            exit(1);
+        }
     }
 }

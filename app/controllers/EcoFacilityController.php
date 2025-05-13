@@ -43,110 +43,147 @@ class EcoFacilityController extends Controller
      */
     public function datatable()
     {
-        // Capture DataTables parameters
-        $start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-        $length = isset($_GET['length']) ? (int)$_GET['length'] : 10;
-        $search = isset($_GET['search']['value']) ? $_GET['search']['value'] : '';
-        $orderColumnIndex = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 0;
-        $orderDirection = isset($_GET['order'][0]['dir']) ? $_GET['order'][0]['dir'] : 'DESC';
-
-        // Define orderable columns (adjust based on your database schema)
-        $columns = ['id', 'title', 'description', 'category', 'town', 'county', 'postcode'];
-        $orderColumn = isset($columns[$orderColumnIndex]) ? $columns[$orderColumnIndex] : 'id';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        $search = isset($_GET['search']) ? $_GET['search'] : '';
 
         // Get data
-        $ecoFacility = $this->ecoFacilityModel->getAll($start, $length, $search, $orderColumn, $orderDirection);
-        $totalRecords = $this->ecoFacilityModel->getTotalRecords();
-        $filteredRecords = !empty($search) ? $this->ecoFacilityModel->getFilteredRecords($search) : $totalRecords;
+        $ecoFacility = $this->ecoFacilityModel->getAll($offset, $limit, $search);
+        foreach ($ecoFacility as &$facility) {
+            if(isset($_SESSION['user_id'])) {
+
+                $status = $this->ecoFacilityStatusModel->findWhere([
+                    'contributor' => $_SESSION['user_id'],
+                    'facilityId' => $facility['id']
+                ]);
+            } else {
+                $status = false;
+            }
+            $facility['isVisited'] = $status ? 1 : 0;
+        }
+        $totalRecords = $this->ecoFacilityModel->getTotalRecords($search);
 
         // Prepare response
         $response = [
-            "draw" => isset($_GET['draw']) ? (int)$_GET['draw'] : 1,
-            "recordsTotal" => $totalRecords,
-            "recordsFiltered" => $filteredRecords,
-            "data" => []
+            "data" => $ecoFacility,
+            "total" => $totalRecords,
+            "has_more" => ($page * $limit) < $totalRecords
         ];
 
-
-        foreach ($ecoFacility as $facility) {
-            $action = '';
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'Manager') {
-                $action .= '<a href="' . BASE_URL . "/eco-facility/edit/" . $facility['id'] . '" class="btn btn-warning btn-sm">Edit</a>
-                            <button class="btn btn-danger btn-sm delete-button" data-id="' . $facility['id'] . '">Delete</button>';
-            }
-
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'User') {
-                if ($facility['isVisited']) {
-                    $action .= '<button class="btn btn-primary btn-sm" data-id="' . $facility['id'] . '" disabled>Visited</button>';
-                } else {
-                    $action .= '<button class="btn btn-primary btn-sm visit-button" data-id="' . $facility['id'] . '">Mark as Visited</button>';
-                }
-            }
-
-
-            $response['data'][] = [
-                $facility['title'],
-                $facility['description'],
-                $facility['category'],
-                $facility['town'],
-                $facility['county'],
-                $facility['postcode'],
-                $action ?
-                    '
-                    <div class="btn-group text-nowrap">
-                        ' . $action . '
-                    </div>
-                ' : '-',
-            ];
-        }
-
-        // Output JSON response
         header('Content-Type: application/json');
         echo json_encode($response);
     }
 
     /**
-     * Handles the creation of a new eco facility.
+     * Shows the form to create a new eco facility.
+     * @middleware manager
      */
-    public function create()
+    public function get_create()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => $_POST['title'] ?? 0,
-                'category' => 1,
-                'description' => $_POST['description'] ?? 0,
-                'houseNumber' => $_POST['houseNumber'] ?? 0,
-                'streetName' => $_POST['streetName'] ?? 0,
-                'town' => $_POST['town'] ?? 0,
-                'county' => $_POST['county'] ?? 0,
-                'postcode' => $_POST['postcode'] ?? 0,
-                'lng' => $_POST['lng'] ?? 0,
-                'lat' => $_POST['lat'] ?? 0,
-                'contributor' => $_SESSION['user_id']
-            ];
-
-            // Validate data here (add your validation logic)
-
-            // Insert the new eco facility record
-            if ($this->ecoFacilityModel->create($data)) {
-                $this->redirect('/eco-facility');
-            } else {
-                // Handle error (e.g., show an error message)
-                echo "Error creating eco facility.";
-            }
-        }
-
+        $this->isManager();
         $this->render('eco_facility/create', [
             'category' => $this->ecoCategoryModel->all()
         ]);
     }
 
     /**
-     * Handles the editing of an existing eco facility.
+     * Shows the details of an eco facility.
+     * @middleware auth
+     */
+    public function get_detail($id)
+    {
+        // $this->isAuthenticated();
+        // Fetch the eco facility data
+        $facility = $this->ecoFacilityModel->find($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo "Eco facility not found.";
+            return;
+        }
+
+        // Fetch the status of the eco facility for the current user
+        $status = $this->ecoFacilityStatusModel->where('facilityId', '=', $id);
+        // Get the contributor information for each status entry
+        foreach ($status as $key => $statusItem) {
+            $contributor = $this->userModel->find($statusItem['contributor']);
+            if ($contributor) {
+                $status[$key]['contributorName'] = $contributor['username'] ?? 'Unknown';
+            } else {
+                $status[$key]['contributorName'] = 'Unknown';
+            }
+        }
+
+        $this->render('eco_facility/detail', [
+            'ecoFacility' => $facility,
+            'status' => $status,
+            'category' => $this->ecoCategoryModel->all()
+        ]);
+    }
+
+    /**
+     * Handles the submission of a new eco facility.
+     * @middleware manager
+     */
+    public function post_create()
+    {
+        $data = [
+            'title' => $_POST['title'] ?? '',
+            'category' => $_POST['category'] ?? 1,
+            'description' => $_POST['description'] ?? '',
+            'houseNumber' => $_POST['houseNumber'] ?? '',
+            'streetName' => $_POST['streetName'] ?? '',
+            'town' => $_POST['town'] ?? '',
+            'county' => $_POST['county'] ?? '',
+            'postcode' => $_POST['postcode'] ?? '',
+            'lng' => $_POST['lng'] ?? 0,
+            'lat' => $_POST['lat'] ?? 0,
+            'contributor' => $_SESSION['user_id']
+        ];
+
+        // Validate data here (add your validation logic)
+
+        // Insert the new eco facility record
+        if ($this->ecoFacilityModel->create($data)) {
+            $this->redirect('/eco-facility');
+        } else {
+            // Handle error (e.g., show an error message)
+            echo "Error creating eco facility.";
+        }
+    }
+
+    /**
+     * Shows the form to edit an existing eco facility.
+     * @middleware manager
      * 
      * @param int $id The ID of the eco facility to edit.
      */
-    public function edit($id)
+    public function get_edit($id)
+    {
+        $this->isManager();
+        // Fetch the existing eco facility data
+        $facility = $this->ecoFacilityModel->find($id);
+
+        if (!$facility) {
+            // Handle error if facility not found
+            echo "Eco facility not found.";
+            return;
+        }
+
+        $this->render('eco_facility/edit', [
+            'ecoFacility' => $facility,
+            'category' => $this->ecoCategoryModel->all()
+        ]);
+    }
+
+    /**
+     * Handles the submission of an edited eco facility.
+     * @middleware manager
+     * 
+     * @param int $id The ID of the eco facility to edit.
+     */
+    public function post_edit($id)
     {
         // Fetch the existing eco facility data
         $facility = $this->ecoFacilityModel->find($id);
@@ -157,44 +194,49 @@ class EcoFacilityController extends Controller
             return;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => $_POST['title'] ?? $facility['title'],
-                'category' => $_POST['category'] ?? $facility['category'],
-                'description' => $_POST['description'] ?? $facility['description'],
-                'town' => $_POST['town'] ?? $facility['town'],
-                'county' => $_POST['county'] ?? $facility['county'],
-                'postcode' => $_POST['postcode'] ?? $facility['postcode'],
-                'contributor' => $_SESSION['user_id']
-            ];
+        $data = [
+            'title' => $_POST['title'] ?? $facility['title'],
+            'category' => $_POST['category'] ?? $facility['category'],
+            'description' => $_POST['description'] ?? $facility['description'],
+            'houseNumber' => $_POST['houseNumber'] ?? $facility['houseNumber'] ?? '',
+            'streetName' => $_POST['streetName'] ?? $facility['streetName'] ?? '',
+            'town' => $_POST['town'] ?? $facility['town'],
+            'county' => $_POST['county'] ?? $facility['county'],
+            'postcode' => $_POST['postcode'] ?? $facility['postcode'],
+            'lat' => $_POST['lat'] ?? $facility['lat'] ?? 0,
+            'lng' => $_POST['lng'] ?? $facility['lng'] ?? 0,
+            'contributor' => $_SESSION['user_id']
+        ];
 
-            // Validate data here (add your validation logic)
+        // Validate data here (add your validation logic)
 
-            // Update the eco facility record
-            if ($this->ecoFacilityModel->update($id, $data)) {
-                $this->redirect('/eco-facility');
-            } else {
-                // Handle error (e.g., show an error message)
-                echo "Error updating eco facility.";
-            }
+        // Update the eco facility record
+        if ($this->ecoFacilityModel->update($id, $data)) {
+            $this->redirect('/eco-facility');
+        } else {
+            // Handle error (e.g., show an error message)
+            echo "Error updating eco facility.";
         }
-
-        $this->render('eco_facility/edit', [
-            'ecoFacility' => $facility,
-            'category' => $this->ecoCategoryModel->all()
-        ]);
     }
 
     /**
      * Marks an eco facility as visited.
+     * @middleware auth
      * 
      * @param int $id The ID of the eco facility to mark as visited.
      */
-    public function visit($id)
+    public function post_visit($id)
     {
+        // Get data from the request body
+        $requestData = json_decode(file_get_contents('php://input'), true);
+        $comment = isset($requestData['comment']) ? $requestData['comment'] : '-';
+
         // Fetch the existing eco facility data
         $facility = $this->ecoFacilityModel->find($id);
-        $status = $this->ecoFacilityStatusModel->where('facilityId', '=', $id);
+        $status = $this->ecoFacilityStatusModel->findWhere([
+            'contributor' => $_SESSION['user_id'],
+            'facilityId' => $id
+        ]);
 
         if (!$facility) {
             // Handle error if facility not found
@@ -206,11 +248,11 @@ class EcoFacilityController extends Controller
         $data = [
             'facilityId' => $id,
             'isVisited' => 1,
-            'statusComment' => '-',
+            'statusComment' => $comment,
             'contributor' => $_SESSION['user_id']
         ];
 
-        if ($status) {
+        if (!$status) {
             $changeStatus = $this->ecoFacilityStatusModel->create($data);
         } else {
             $changeStatus = $this->ecoFacilityStatusModel->update($id, $data);
@@ -227,10 +269,11 @@ class EcoFacilityController extends Controller
 
     /**
      * Deletes an eco facility.
+     * @middleware manager
      * 
      * @param int $id The ID of the eco facility to delete.
      */
-    public function delete($id)
+    public function delete_facility($id)
     {
         // Fetch the existing eco facility data
         $facility = $this->ecoFacilityModel->find($id);
@@ -244,7 +287,6 @@ class EcoFacilityController extends Controller
         // Attempt to delete the eco facility record
         if ($this->ecoFacilityModel->delete($id)) {
             echo json_encode(["success" => "Eco facility deleted successfully."]);
-            $this->redirect('/eco-facility');
         } else {
             // Handle error (e.g., show an error message)
             echo json_encode(["error" => "Error deleting eco facility."]);
@@ -252,13 +294,13 @@ class EcoFacilityController extends Controller
     }
 
     /**
-     * Seeds the eco facilities table with 1000 rows of sample data.
+     * Seeds the eco facilities table with 10000 rows of sample data.
      */
     public function seed()
     {
         // Delete all existing eco facilities
         $this->ecoFacilityModel->deleteAll();
-        // Seed the eco facilities table with 1000 rows
+        // Seed the eco facilities table with 10000 rows
         for ($i = 1; $i <= 10000; $i++) {
             $data = [
                 'id' => $i,
